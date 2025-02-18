@@ -6,7 +6,7 @@ data "aws_security_groups" "smc_provided_sg_ids" {
   }
 }
 
-data "aws_secretsmanager_secret" "nswhealth_rootca" {
+data "aws_secretsmanager_secret" "rootca" {
   name = "/dev/rootCA"
 }
 

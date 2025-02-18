@@ -117,14 +117,21 @@ check_ports() {
   netstat -ntlp | grep -wq "0.0.0.0:9090" || exit 1
 }
 
-disable_swap_selinux() {
+disable_swap() {
   swapoff -a
   sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 }
 
+set_hostname() {
+  TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+  HOSTNAME=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/local-hostname)
+  hostnamectl set-hostname $HOSTNAME
+  systemctl restart systemd-logind.service
+}
 main() {
   cd "$root"
   disable_swap
+  set_hostname
   set_up_proxy
   apt_get_update_y
   apt_get_packages
